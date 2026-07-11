@@ -4,6 +4,9 @@ import com.mycompany.artelocalbd2.conexion.ConexionOracle;
 import com.mycompany.artelocalbd2.conexion.ConexionPostgres;
 import com.mycompany.artelocalbd2.conexion.ConexionMongo;
 import com.mycompany.artelocalbd2.conexion.ConexionCassandra;
+import com.mycompany.artelocalbd2.dao.postgres.ProductoDAO;
+import com.mycompany.artelocalbd2.modelo.Producto;
+import com.mycompany.artelocalbd2.web.WebServer;
 
 import java.sql.Connection;
 
@@ -126,14 +129,29 @@ public class ArteLocalBD2 {
             System.out.println("✗ Cassandra no conectado");
 
         }
-
-
-
         System.out.println("\n================================");
         System.out.println(" FIN DE PRUEBA DE CONEXIONES ");
         System.out.println("================================");
 
 
+        // ===========================
+        // EJEMPLO DAO POSTGRES
+        // ===========================
+
+        ProductoDAO productoDAO = new ProductoDAO();
+        Producto producto = productoDAO.buscar(1);
+
+        if (producto != null) {
+            System.out.println("\nProducto encontrado: " + producto);
+        } else {
+            System.out.println("\nNo se encontró el producto con id 1 o la tabla no existe.");
+        }
+
+        // ===========================
+        // SERVIDOR WEB
+        // ===========================
+
+        WebServer.start();
     }
 
 }

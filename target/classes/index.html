@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Control - ArteLocal</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 2rem; background: #f4f6f9; color: #333; }
+        .container { max-width: 1000px; margin: 0 auto; }
+        h1 { color: #2c3e50; border-bottom: 2px solid #ecf0f1; padding-bottom: 10px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1.5rem; }
+        @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
+        .card { background: #fff; padding: 1.5rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        h2 { color: #34495e; margin-top: 0; font-size: 1.25rem; }
+        button { padding: 10px 20px; font-size: 14px; cursor: pointer; background: #3498db; color: white; border: none; border-radius: 4px; font-weight: bold; transition: background 0.2s; }
+        button:hover { background: #2980b9; }
+        .btn-update { background: #2ecc71; width: 100%; margin-top: 10px; }
+        .btn-update:hover { background: #27ae60; }
+        #status-resultado { margin-top: 1rem; background: #fafafa; padding: 10px; border-left: 4px solid #3498db; border-radius: 4px; }
+        select, textarea { width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; margin-top: 8px; font-family: monospace; }
+        textarea { resize: vertical; height: 100px; }
+        label { font-weight: bold; display: block; margin-top: 12px; color: #555; }
+        #modificar-resultado { margin-top: 12px; padding: 10px; font-weight: bold; border-radius: 4px; display: none; }
+        .success { background: #e8f8f5; color: #2ecc71; border: 1px solid #2ecc71; }
+        .error { background: #fdedec; color: #e74c3c; border: 1px solid #e74c3c; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>ArteLocal - Administrador Multibase de Datos</h1>
+
+    <div class="grid">
+        <!-- BLOQUE 1: MONITOR DE CONEXIONES -->
+        <div class="card">
+            <h2>🔍 Estado de las Conexiones</h2>
+            <p>Monitorea la disponibilidad de los motores en tiempo real:</p>
+            <button onclick="probarConexiones()">Verificar Servidores</button>
+            <div id="status-resultado">
+                <p style="color: #7f8c8d; margin: 0;">Presiona el botón para escanear las conexiones...</p>
+            </div>
+        </div>
+
+        <!-- BLOQUE 2: MODIFICADOR DINÁMICO -->
+        <div class="card">
+            <h2>⚡ Modificar Registros / Datos</h2>
+            
+            <label for="db-select">1. Selecciona la Base de Datos:</label>
+            <select id="db-select" onchange="actualizarPlaceholder()">
+                <option value="oracle">Oracle DB</option>
+                <option value="postgres">PostgreSQL</option>
+                <option value="mongo">MongoDB (NoSQL)</option>
+                <option value="cassandra">Apache Cassandra (NoSQL)</option>
+            </select>
+
+            <label for="db-query">2. Sentencia o Comando de Modificación:</label>
+            <textarea id="db-query" placeholder="UPDATE usuarios SET nombre = 'ArteLocal' WHERE id = 1;"></textarea>
+            
+            <button class="btn-update" onclick="ejecutarModificacion()">Ejecutar Modificación</button>
+            <div id="modificar-resultado"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Cambia el texto de ejemplo según la base de datos seleccionada
+    function actualizarPlaceholder() {
+        const db = document.getElementById('db-select').value;
+        const tx = document.getElementById('db-query');
+        if (db === 'oracle' || db === 'postgres') {
+            tx.placeholder = "UPDATE productos SET precio = 25.50 WHERE id = 101;";
+        } else if (db === 'mongo') {
+            tx.placeholder = "db.usuarios.updateOne({id: 1}, {$set: {nombre: 'Nuevo ArteLocal'}})";
+        } else if (db === 'cassandra') {
+            tx.placeholder = "UPDATE galerias SET estado = 'activo' WHERE id = 5;";
+        }
+    }
+
+    // Consulta tu endpoint /status actual
+    async function probarConexiones() {
+        const contenedor = document.getElementById('status-resultado');
+        contenedor.innerHTML = '<p style="color: #e67e22; margin:0;">Estableciendo contacto con Java...</p>';
+        try {
+            const respuesta = await fetch('/status');
+            if (!respuesta.ok) throw new Error('Código de error: ' + respuesta.status);
+            // Tu StatusHandler ya devuelve HTML formateado (<h2>, <ul>, etc.)
+            contenedor.innerHTML = await respuesta.text();
+        } catch (error) {
+            contenedor.innerHTML = `<p style="color:#e74c3c; margin:0;"><b>Error de red:</b> ${error.message}</p>`;
+        }
+    }
+
+    // Envía los datos de modificación hacia el backend de Java
+    async function ejecutarModificacion() {
+        const dbSeleccionada = document.getElementById('db-select').value;
+        const comando = document.getElementById('db-query').value.trim();
+        const consola = document.getElementById('modificar-resultado');
+
+        if (!comando) {
+            consola.className = "error";
+            consola.style.display = "block";
+            consola.innerText = "Por favor, escribe un comando o consulta para continuar.";
+            return;
+        }
+
+        consola.style.display = "block";
+        consola.className = "";
+        consola.style.background = "#fff9e6";
+        consola.style.color = "#d35400";
+        consola.innerText = "Procesando cambios en el servidor...";
+
+        try {
+            // Mandamos los datos usando la ruta '/modificar' vía POST
+            const respuesta = await fetch('/modificar', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json; charset=UTF-8' },
+                body: JSON.stringify({
+                    base: dbSeleccionada,
+                    query: comando
+                })
+            });
+
+            const textoRespuesta = await respuesta.text();
+
+            if (respuesta.ok) {
+                consola.className = "success";
+                consola.innerHTML = `<b>Éxito:</b> ${textoRespuesta}`;
+            } else {
+                consola.className = "error";
+                consola.innerHTML = `<b>Error en Servidor (${respuesta.status}):</b> ${textoRespuesta}`;
+            }
+        } catch (error) {
+            consola.className = "error";
+            consola.innerHTML = `<b>Error de Red:</b> No se pudo conectar con Java. (${error.message})`;
+        }
+    }
+</script>
+</body>
+</html>
