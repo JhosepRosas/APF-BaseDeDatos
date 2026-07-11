@@ -10,7 +10,7 @@ public class ConexionPostgres {
             "jdbc:postgresql://localhost:5432/artelocal_db";
 
     private static final String USER = "postgres";
-    private static final String PASSWORD = "franco123";
+    private static final String PASSWORD = "tupassword";
 
 
     public static Connection conectar() {
