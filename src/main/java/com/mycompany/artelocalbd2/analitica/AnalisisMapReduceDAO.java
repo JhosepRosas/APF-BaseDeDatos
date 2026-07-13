@@ -26,7 +26,7 @@ import java.util.Map;
 public class AnalisisMapReduceDAO {
 
     private static final String DB_NAME = "artelocal";
-    private static final String COLLECTION_ORIGEN = "log_navegacion";
+    private static final String COLLECTION_ORIGEN = "logs_navegacion";
     private static final String COLLECTION_SALIDA = "productos_mas_visitados";
 
     // --- Funcion MAP (JavaScript, ejecutada del lado del servidor Mongo) ---
@@ -65,12 +65,19 @@ public class AnalisisMapReduceDAO {
 
             // Leer la coleccion de salida generada por el MapReduce
             db.getCollection(COLLECTION_SALIDA)
-                    .find()
-                    .sort(new Document("value", -1))
-                    .forEach(doc -> resultado.put(
-                            doc.getInteger("_id"),
-                            doc.get("value", Number.class).intValue()
-                    ));
+        .find()
+        .sort(new Document("value", -1))
+        .forEach(doc -> {
+
+            Number id = doc.get("_id", Number.class);
+            Number valor = doc.get("value", Number.class);
+
+            resultado.put(
+                    id.intValue(),
+                    valor.intValue()
+            );
+
+        });
 
         } catch (Exception e) {
             System.out.println("Error ejecutando MapReduce: " + e.getMessage());

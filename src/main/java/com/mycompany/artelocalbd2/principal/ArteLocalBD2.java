@@ -4,12 +4,15 @@ import com.mycompany.artelocalbd2.conexion.ConexionOracle;
 import com.mycompany.artelocalbd2.conexion.ConexionPostgres;
 import com.mycompany.artelocalbd2.conexion.ConexionMongo;
 import com.mycompany.artelocalbd2.conexion.ConexionCassandra;
+
 import com.mycompany.artelocalbd2.dao.oracle.ProductoDAO;
 import com.mycompany.artelocalbd2.modelo.Producto;
-import com.mycompany.artelocalbd2.web.WebServer;
+
 import com.mycompany.artelocalbd2.analitica.AnalisisMapReduceDAO;
+import com.mycompany.artelocalbd2.web.WebServer;
 
 import java.sql.Connection;
+import java.util.Map;
 
 
 public class ArteLocalBD2 {
@@ -58,21 +61,19 @@ public class ArteLocalBD2 {
 
         System.out.println("\n--- PostgreSQL ---");
 
-
         Connection postgres = ConexionPostgres.conectar();
 
 
-        if(postgres != null){
+        if (postgres != null) {
 
             System.out.println("✓ PostgreSQL conectado correctamente");
-
 
             try {
 
                 postgres.close();
                 System.out.println("✓ Conexion PostgreSQL cerrada");
 
-            } catch(Exception e){
+            } catch (Exception e) {
 
                 System.out.println("Error cerrando PostgreSQL");
 
@@ -95,14 +96,14 @@ public class ArteLocalBD2 {
         System.out.println("\n--- MongoDB ---");
 
 
-        if(ConexionMongo.conectar()!=null){
+        if (ConexionMongo.conectar() != null) {
 
             System.out.println("✓ MongoDB conectado correctamente");
 
             ConexionMongo.cerrar();
 
 
-        }else{
+        } else {
 
             System.out.println("✗ MongoDB no conectado");
 
@@ -118,52 +119,99 @@ public class ArteLocalBD2 {
         System.out.println("\n--- Cassandra ---");
 
 
-        if(ConexionCassandra.conectar()!=null){
+        if (ConexionCassandra.conectar() != null) {
 
             System.out.println("✓ Cassandra conectado correctamente");
 
             ConexionCassandra.cerrar();
 
 
-        }else{
+        } else {
 
             System.out.println("✗ Cassandra no conectado");
 
         }
+
+
         System.out.println("\n================================");
         System.out.println(" FIN DE PRUEBA DE CONEXIONES ");
         System.out.println("================================");
 
 
+
+
         // ===========================
-        // EJEMPLO DAO POSTGRES
+        // EJEMPLO DAO ORACLE
         // ===========================
 
         ProductoDAO productoDAO = new ProductoDAO();
+
         Producto producto = productoDAO.buscar(1);
 
+
         if (producto != null) {
+
             System.out.println("\nProducto encontrado: " + producto);
+
         } else {
-            System.out.println("\nNo se encontró el producto con id 1 o la tabla no existe.");
+
+            System.out.println(
+                "\nNo se encontró el producto con id 1 o la tabla no existe."
+            );
+
         }
 
+
+
+
         // ===========================
-        // ANALISIS MAPREDUCE (MONGODB)
+        // ANALISIS MAPREDUCE MONGODB
         // ===========================
 
         System.out.println("\n--- MapReduce: productos mas visitados ---");
 
+
         AnalisisMapReduceDAO analisisMR = new AnalisisMapReduceDAO();
-        analisisMR.contarVisitasPorProducto()
-                .forEach((idProducto, visitas) ->
-                        System.out.println("Producto " + idProducto + ": " + visitas + " visitas"));
+
+
+        Map<Integer, Integer> ranking =
+                analisisMR.contarVisitasPorProducto();
+
+
+
+        if (ranking.isEmpty()) {
+
+            System.out.println(
+                "No hay datos disponibles en logs_navegacion."
+            );
+
+
+        } else {
+
+
+            ranking.forEach((idProducto, visitas) ->
+
+                System.out.println(
+                    "Producto "
+                    + idProducto
+                    + ": "
+                    + visitas
+                    + " visitas"
+                )
+
+            );
+
+        }
+
+
+
 
         // ===========================
         // SERVIDOR WEB
         // ===========================
 
         WebServer.start();
+
     }
 
 }

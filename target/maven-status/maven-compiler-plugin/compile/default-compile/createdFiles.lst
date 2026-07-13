@@ -2,6 +2,7 @@ com\mycompany\artelocalbd2\analitica\AnalisisMapReduceDAO.class
 com\mycompany\artelocalbd2\web\WebServer$RootHandler.class
 com\mycompany\artelocalbd2\dao\cassandra\SeguimientoPedidoDAO.class
 com\mycompany\artelocalbd2\dao\mongo\LogNavegacionDAO.class
+com\mycompany\artelocalbd2\dao\mongo\ProductosMasVisitadosDAO.class
 com\mycompany\artelocalbd2\conexion\ConexionPostgres.class
 com\mycompany\artelocalbd2\dao\postgres\ValoracionVendedorDAO.class
 com\mycompany\artelocalbd2\modelo\ClientePerfil.class
@@ -31,6 +32,7 @@ com\mycompany\artelocalbd2\dao\oracle\CategoriaDAO.class
 com\mycompany\artelocalbd2\modelo\Categoria.class
 com\mycompany\artelocalbd2\modelo\Envio.class
 com\mycompany\artelocalbd2\dao\oracle\ArtesanoDAO.class
+com\mycompany\artelocalbd2\modelo\ProductoMasVisitado.class
 com\mycompany\artelocalbd2\conexion\ConexionOracle.class
 com\mycompany\artelocalbd2\principal\ArteLocalBD2.class
 com\mycompany\artelocalbd2\modelo\Artesano.class
