@@ -1,5 +1,6 @@
 package com.mycompany.artelocalbd2.web;
 
+import com.mycompany.artelocalbd2.analitica.AnalisisMapReduceDAO;
 import com.mycompany.artelocalbd2.conexion.ConexionCassandra;
 import com.mycompany.artelocalbd2.conexion.ConexionMongo;
 import com.mycompany.artelocalbd2.conexion.ConexionOracle;
@@ -37,6 +38,7 @@ public class WebServer {
             server.createContext("/", new RootHandler());
             server.createContext("/status", new StatusHandler());
             server.createContext("/modificar", new ModificarHandler());
+            server.createContext("/mapreduce", new MapReduceHandler());
             server.setExecutor(null);
             server.start();
             System.out.println("Servidor web iniciado en http://localhost:" + PORT);
@@ -79,6 +81,43 @@ public class WebServer {
             exchange.sendResponseHeaders(200, html.getBytes(StandardCharsets.UTF_8).length);
             try (OutputStream os = exchange.getResponseBody()) {
                 os.write(html.getBytes(StandardCharsets.UTF_8));
+            }
+        }
+    }
+
+    private static class MapReduceHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange exchange) throws IOException {
+            String html;
+            try {
+                AnalisisMapReduceDAO analisis = new AnalisisMapReduceDAO();
+                java.util.Map<Integer, Integer> ranking = analisis.contarVisitasPorProducto();
+
+                StringBuilder sb = new StringBuilder();
+                sb.append("<h2>Productos más visitados (MapReduce)</h2>");
+
+                if (ranking.isEmpty()) {
+                    sb.append("<p>No hay datos disponibles en log_navegacion o no se pudo conectar a MongoDB.</p>");
+                } else {
+                    sb.append("<table style='width:100%; border-collapse: collapse;'>");
+                    sb.append("<tr><th style='text-align:left; border-bottom:1px solid #ccc;'>ID Producto</th>")
+                      .append("<th style='text-align:left; border-bottom:1px solid #ccc;'>Visitas</th></tr>");
+                    for (java.util.Map.Entry<Integer, Integer> entry : ranking.entrySet()) {
+                        sb.append("<tr><td>").append(entry.getKey()).append("</td>")
+                          .append("<td>").append(entry.getValue()).append("</td></tr>");
+                    }
+                    sb.append("</table>");
+                }
+                html = sb.toString();
+            } catch (Exception e) {
+                html = "<p style='color:#e74c3c;'>Error ejecutando MapReduce: " + e.getMessage() + "</p>";
+            }
+
+            byte[] responseBytes = html.getBytes(StandardCharsets.UTF_8);
+            exchange.getResponseHeaders().add("Content-Type", "text/html; charset=UTF-8");
+            exchange.sendResponseHeaders(200, responseBytes.length);
+            try (OutputStream os = exchange.getResponseBody()) {
+                os.write(responseBytes);
             }
         }
     }

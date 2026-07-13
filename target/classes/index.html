@@ -41,6 +41,14 @@
             </div>
         </div>
 
+        <!-- BLOQUE 3: ANALISIS MAPREDUCE -->
+        <div class="card">
+            <h2>📊 Análisis MapReduce (MongoDB)</h2>
+            <p>Ejecuta el MapReduce sobre log_navegacion y muestra los productos más visitados:</p>
+            <button onclick="ejecutarMapReduce()">Ejecutar MapReduce</button>
+            <div id="mapreduce-resultado" style="margin-top: 1rem;"></div>
+        </div>
+
         <!-- BLOQUE 2: MODIFICADOR DINÁMICO -->
         <div class="card">
             <h2>⚡ Modificar Registros / Datos</h2>
@@ -73,6 +81,19 @@
             tx.placeholder = "db.usuarios.updateOne({id: 1}, {$set: {nombre: 'Nuevo ArteLocal'}})";
         } else if (db === 'cassandra') {
             tx.placeholder = "UPDATE galerias SET estado = 'activo' WHERE id = 5;";
+        }
+    }
+
+    // Consulta el endpoint /mapreduce y muestra el ranking
+    async function ejecutarMapReduce() {
+        const contenedor = document.getElementById('mapreduce-resultado');
+        contenedor.innerHTML = '<p style="color: #e67e22; margin:0;">Ejecutando MapReduce en MongoDB...</p>';
+        try {
+            const respuesta = await fetch('/mapreduce');
+            if (!respuesta.ok) throw new Error('Código de error: ' + respuesta.status);
+            contenedor.innerHTML = await respuesta.text();
+        } catch (error) {
+            contenedor.innerHTML = `<p style="color:#e74c3c; margin:0;"><b>Error:</b> ${error.message}</p>`;
         }
     }
 

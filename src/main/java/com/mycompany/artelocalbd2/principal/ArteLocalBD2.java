@@ -7,6 +7,7 @@ import com.mycompany.artelocalbd2.conexion.ConexionCassandra;
 import com.mycompany.artelocalbd2.dao.oracle.ProductoDAO;
 import com.mycompany.artelocalbd2.modelo.Producto;
 import com.mycompany.artelocalbd2.web.WebServer;
+import com.mycompany.artelocalbd2.analitica.AnalisisMapReduceDAO;
 
 import java.sql.Connection;
 
@@ -146,6 +147,17 @@ public class ArteLocalBD2 {
         } else {
             System.out.println("\nNo se encontró el producto con id 1 o la tabla no existe.");
         }
+
+        // ===========================
+        // ANALISIS MAPREDUCE (MONGODB)
+        // ===========================
+
+        System.out.println("\n--- MapReduce: productos mas visitados ---");
+
+        AnalisisMapReduceDAO analisisMR = new AnalisisMapReduceDAO();
+        analisisMR.contarVisitasPorProducto()
+                .forEach((idProducto, visitas) ->
+                        System.out.println("Producto " + idProducto + ": " + visitas + " visitas"));
 
         // ===========================
         // SERVIDOR WEB
