@@ -4,7 +4,7 @@ import com.mycompany.artelocalbd2.conexion.ConexionOracle;
 import com.mycompany.artelocalbd2.conexion.ConexionPostgres;
 import com.mycompany.artelocalbd2.conexion.ConexionMongo;
 import com.mycompany.artelocalbd2.conexion.ConexionCassandra;
-import com.mycompany.artelocalbd2.dao.postgres.ProductoDAO;
+import com.mycompany.artelocalbd2.dao.oracle.ProductoDAO;
 import com.mycompany.artelocalbd2.modelo.Producto;
 import com.mycompany.artelocalbd2.web.WebServer;
 

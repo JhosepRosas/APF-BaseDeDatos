@@ -29,7 +29,7 @@ import com.datastax.oss.driver.api.core.cql.ResultSet;
 
 public class WebServer {
 
-    private static final int PORT = 8080;
+    private static final int PORT = 8081;
 
     public static void start() {
         try {
